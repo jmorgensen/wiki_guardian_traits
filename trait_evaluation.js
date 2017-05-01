@@ -670,9 +670,9 @@ function factor_with_trait(event_option, guardian_trait)
 
 function option_probabilities_with_trait(event, guardian_trait)
 {
-    var factors = [factor_with_trait(option, guardian_trait) for (option of event.options)];
+    var factors = event.options.map(option => factor_with_trait(option, guardian_trait));
     var total = sum(factors);
-    return [factor / total for (factor of factors)];
+    return factors.map(f => f / total);
 }
 
 function expected_value(child_values, event_result)
@@ -686,7 +686,7 @@ function expected_value(child_values, event_result)
     return e;
 }
 
-function sum(arr) arr.reduce((a, b) => a + b)
+function sum(arr) { return arr.reduce((a, b) => a + b); }
 
 function dot_product(a, b)
 {
@@ -711,7 +711,7 @@ function calc_guardian_values(child_values)
     // For each event, compute the expected value to the child with no traits (null_impact) and with each trait (t_impact)
     for (var event_name in ward_and_guardian_events) {
         var event = ward_and_guardian_events[event_name];
-        var values_of_options = [expected_value(child_values, option.result) for (option of event.options)];
+        var values_of_options = event.options.map(option => expected_value(child_values, option.result));
         var null_impact = dot_product(values_of_options, option_probabilities_with_trait(event, "none"));
         //print("'" + event_name + "' with a traitless guardian: " + null_impact);
         for (guardian_trait in child_values) {
@@ -774,7 +774,7 @@ function create_wiki_table(v)
 {
     for (var trait of DISPLAY_ORDER) {
         print("|-");
-        var captrait = String.toUpperCase(trait.charAt(0)) + trait.slice(1);
+        var captrait = trait.charAt(0).toUpperCase() + trait.slice(1);
         var row = "";
         row += "! " + pad("[[File:" + captrait + ".png]]", 24);
         row += "!! " + captrait + "\n";
